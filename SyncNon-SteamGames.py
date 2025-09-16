@@ -1,4 +1,4 @@
-import os
+import sys, io, os
 import vdf
 import requests
 import logging
@@ -6,6 +6,13 @@ import zlib
 import json
 from pathlib import Path
 from gooey import Gooey, GooeyParser
+
+# Optional: force UTF-8 mode globally
+os.environ["PYTHONIOENCODING"] = "utf-8"
+
+# Rebind stdout/stderr to UTF-8
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace', line_buffering=True)
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace', line_buffering=True)
 
 def saveJsonFile(filename, data):
     with open(filename, 'w') as f:
@@ -49,10 +56,16 @@ currentGame = 0
 def read_current_games():
     """Read the current games from the game installation directory."""
     try:
-        current_games = {folder.lower() for folder in os.listdir(game_installation_path) if os.path.isdir(os.path.join(game_installation_path, folder))}
+        current_games = { os.path.join(base_path, subfolder)
+    for base_path in game_installation_path.split(";")
+    if os.path.isdir(base_path)
+    for subfolder in os.listdir(base_path)
+    if os.path.isdir(os.path.join(base_path, subfolder))}
         global totalGames
         totalGames = len(current_games)
         logger.info(f"Total number of games: {totalGames}")
+
+
 
     except Exception as e:
         logger.error(f"Error reading game installation directory {game_installation_path}: {e}")
@@ -166,12 +179,7 @@ def update_shortcuts(current_games):
     shortcuts_file = os.path.join(steam_user_data_path, 'shortcuts.vdf')
 
     try:
-        # Load existing shortcuts or create new if the file doesn't exist
-        if os.path.exists(shortcuts_file):
-            with open(shortcuts_file, 'rb') as f:
-                shortcuts = vdf.binary_load(f)
-        else:
-            shortcuts = {'shortcuts': {}}
+        shortcuts = {'shortcuts': {}}
 
         # Collect the current shortcuts
         existing_games = {os.path.basename(shortcut.get('StartDir', '').lower().strip('"')): shortcut for shortcut in shortcuts['shortcuts'].values()}
@@ -198,8 +206,9 @@ def update_shortcuts(current_games):
                         logger.info(f"Removed shortcut for game: {game_name}")
 
         # Add or update games in shortcuts
-        for game_name in current_games:
-            game_path = os.path.join(game_installation_path, game_name)
+
+        for game_path in current_games:
+            game_name = os.path.basename(game_path)
 
             
             global currentGame
@@ -211,7 +220,6 @@ def update_shortcuts(current_games):
                 logger.info(f"{game_name} already in Steam")
 
             if game_name not in existing_games:
-
                 exe_file = find_largest_exe(game_path)
                 if exe_file:
                     logger.info(f"Largest .exe file found: {exe_file}")
@@ -272,7 +280,7 @@ def GUI():
 
     parser.add_argument(
         'game_installation_path',
-        widget='DirChooser',
+        widget='MultiDirChooser',
         metavar='NonSteam Games Folder',
         action='store',
         default = game_installation_path if game_installation_path else ''
@@ -312,17 +320,19 @@ def storeVariablesFromGUI(args):
     saveJsonFile(storedParametersJSONFilename, storedParametersJSON)
 
 ##Regex to reflect progress on GUI
-@Gooey(progress_regex=r"Games processed: (?P<current>\d+)/(?P<total>\d+)$",
+@Gooey(show_preview_warning=False, progress_regex=r"Games processed: (?P<current>\d+)/(?P<total>\d+)$", 
        progress_expr="current / total * 100")
 def main():
     """Main function to check for new or removed games and update Steam shortcuts accordingly."""
     try:
+
         #We get the data from the GUI as arguments and store it into our JSON to avoid having to introduce it each time
         argumentsGUI = GUI()
         storeVariablesFromGUI(argumentsGUI)
 
         logger.info("Reading current games from installation directory...")
         current_games = read_current_games()
+
 
         #Workaround since backslash are not allowed in f-strings
         nl = '\n'

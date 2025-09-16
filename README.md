@@ -12,20 +12,17 @@ Automatically add Non-Steam Games to Steam with images from SteamGridDB
 - Fetches grid, hero, and logo images from SteamGridDB.
 - Adds new games to Steam shortcuts.
 - Removes shortcuts for games that are no longer installed.
-- finds largest .exe in game folder and adds that as the game executable.
-- logging
-- (NEW) Changed the shown name in Steam of the games to be the name from steamgrid instead of the executable name
-- (NEW) Added GUI
-- (NEW) Inference of the steam_user_data_path so only 3 parameters are needed to be provide by the user
-- (NEW) Storage of the variables in a json file at the script location
-- (NEW) Changed slightly the messages to be logged, now it informs if a titles is being skipped when it's already present in steam.
-- (NEW) Added exceptions to the names of executables to be found, to avoid using the wrong one in Unity games
+- Finds largest .exe in game folder and adds that as the game executable.
+- Logging
+- Changed the shown name in Steam of the games to be the name from steamgrid instead of the executable name
+- Added GUI
+- Inference of the steam_user_data_path so only 3 parameters are needed to be provide by the user
+- Storage of the variables in a json file at the script location
+- Changed slightly the messages to be logged, now it informs if a titles is being skipped when it's already present in steam.
+- Added exceptions to the names of executables to be found, to avoid using the wrong one in Unity games
+- <b>(NEW) Multi folder support (v1.3)</b>
 
 ## Limitations:
-- Only 1 folder of games can be used. Altough any number of subfolders is okay. 
-
-    This means that, as long as all games are under a given folder (for example: <b>C:\NonSteamGames\Game1Folder, C:\NonSteamGames\Game2Folder, C:\NonSteamGames\Game3Folder</b> and so on) you are okay. You would select C:\NonSteamGames as your desired folder in this case.
-
 - Only tested in Windows
 - The executable is located by size, which is not ideal. At this moment, the user must change the executable in Steam directly if the wrong one has been chosen.
 
