@@ -23,6 +23,8 @@ Automatically add Non-Steam Games to Steam with images from SteamGridDB
 - <b>(NEW) Multi folder support (v1.3)</b>
 
 ## Limitations:
+- Since the user ID is assumed, if there are more than 1 steam accounts, it may not work (We always select the first one in alphabetical order) 
+
 - Only tested in Windows
 - The executable is located by size, which is not ideal. At this moment, the user must change the executable in Steam directly if the wrong one has been chosen.
 
