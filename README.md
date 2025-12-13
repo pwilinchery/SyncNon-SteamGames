@@ -38,7 +38,7 @@ Automatically add Non-Steam Games to Steam with images from SteamGridDB
 
 - Install the required libraries
 ```py
-pip install requests vdf Gooey 
+pip install -r requirements.txt
 ```
 
 If installation of Gooey fails on Linux, please run following command to install required dependencies (for Debian 13 Trixie):
