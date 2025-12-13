@@ -40,6 +40,12 @@ Automatically add Non-Steam Games to Steam with images from SteamGridDB
 ```py
 pip install requests vdf Gooey 
 ```
+
+If installation of Gooey fails on Linux, please run following command to install required dependencies (for Debian 13 Trixie):
+```bash
+sudo apt install libgtk-3-dev python-config
+```
+
 - Execute the script "SyncNon-SteamGames.py"
 
 
