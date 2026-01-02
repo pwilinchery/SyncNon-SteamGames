@@ -206,25 +206,27 @@ def update_shortcuts(current_games):
                         logger.info(f"Removed shortcut for game: {game_name}")
 
         # Add or update games in shortcuts
-
         for game_path in current_games:
-            game_name = os.path.basename(game_path)
+            try:
+                game_name = os.path.basename(game_path)
+                
+                global currentGame
+                currentGame += 1
+                logger.info("")
+                logger.info(f"Current game: {game_name}")
+                logger.info(f"Games processed: {currentGame}/{totalGames}")
 
-            
-            global currentGame
-            currentGame += 1
-            logger.info(f"Current game: {game_name}")
-            logger.info(f"Games processed: {currentGame}/{totalGames}")
+                if game_name in existing_games:
+                    logger.info(f"{game_name} already in Steam")
+                    continue
 
-            if game_name in existing_games:
-                logger.info(f"{game_name} already in Steam")
-
-            if game_name not in existing_games:
                 exe_file = find_largest_exe(game_path)
                 if exe_file:
                     logger.info(f"Largest .exe file found: {exe_file}")
                 else:
-                    logger.error("No .exe files found in the game directory.")
+                    logger.error(f"No .exe files found for {game_name}. Skipping...")
+                    continue
+                    
                 exe_path = os.path.join(game_path, exe_file)
                 
                 appid = generate_appid(game_name, exe_path)             
@@ -237,14 +239,14 @@ def update_shortcuts(current_games):
                 logger.info(f"Searching SteamGridDB for {game_name}, URL: {search_url}, Status Code: {response.status_code}")
                 if response.status_code == 200:
                     data = response.json()
-                    if data['success']:
+                    if data['success'] and data['data']:
                         game_id = data['data'][0]['id']  # Assuming first result is the best match
                         game_name = data['data'][0]['name']
                         save_images(appid, game_id)
 
                 # Add shortcut entry
                 new_entry = {
-                    "appid": appid, #change to game_id
+                    "appid": appid,
                     "appname": game_name,
                     "exe": f'"{exe_path}"',
                     "StartDir": f'"{game_path}"',
@@ -259,16 +261,15 @@ def update_shortcuts(current_games):
                 }
                 shortcuts['shortcuts'][str(len(shortcuts['shortcuts']))] = new_entry
                 logger.info(f"Added shortcut for game: {game_name}")
-
-
-
+                
+            except Exception as e:
+                logger.error(f"Error processing game {game_name}: {e}. Continuing with next game...")
+                continue
 
         # Save the updated shortcuts file
         with open(shortcuts_file, 'wb') as f:
             vdf.binary_dump(shortcuts, f)
             logger.info("Shortcuts file updated and saved.")
-
-
 
     except Exception as e:
         logger.error(f"Error updating shortcuts: {e}")
