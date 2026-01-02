@@ -319,20 +319,22 @@ def storeVariablesFromGUI(args):
 
     saveJsonFile(storedParametersJSONFilename, storedParametersJSON)
 
-##Regex to reflect progress on GUI
-@Gooey(show_preview_warning=False, progress_regex=r"Games processed: (?P<current>\d+)/(?P<total>\d+)$", 
-       progress_expr="current / total * 100")
 def main():
     """Main function to check for new or removed games and update Steam shortcuts accordingly."""
     try:
-
-        #We get the data from the GUI as arguments and store it into our JSON to avoid having to introduce it each time
-        argumentsGUI = GUI()
-        storeVariablesFromGUI(argumentsGUI)
+        # Check if running with --ignore-gooey (use already-loaded stored config)
+        if '--ignore-gooey' not in sys.argv:
+            # Only run GUI if NOT using --ignore-gooey
+            argumentsGUI = GUI()
+            storeVariablesFromGUI(argumentsGUI)
+            
+        # Verify we have the required parameters
+        if not game_installation_path or not steamgriddb_api_key or not steamdir_path:
+            logger.error("Missing required parameters. Please run with GUI first to set them up.")
+            return
 
         logger.info("Reading current games from installation directory...")
         current_games = read_current_games()
-
 
         #Workaround since backslash are not allowed in f-strings
         nl = '\n'
@@ -346,6 +348,14 @@ def main():
 
     except Exception as e:
         logger.error(f"Unexpected error in main function: {e}")
+
+# Apply Gooey decorator conditionally
+if '--ignore-gooey' not in sys.argv:
+    main = Gooey(
+        show_preview_warning=False, 
+        progress_regex=r"Games processed: (?P<current>\d+)/(?P<total>\d+)$", 
+        progress_expr="current / total * 100"
+    )(main)
 
 if __name__ == "__main__":
     main()
