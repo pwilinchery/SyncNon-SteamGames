@@ -21,6 +21,7 @@ Automatically add Non-Steam Games to Steam with images from SteamGridDB
 - Changed slightly the messages to be logged, now it informs if a titles is being skipped when it's already present in steam.
 - Added exceptions to the names of executables to be found, to avoid using the wrong one in Unity games
 - <b>(NEW) Multi folder support (v1.3)</b>
+- CLI support with the argument `--ignore-gooey` thanks to [`@pwilinchery`](https://github.com/IGnGr/SyncNon-SteamGames/pull/2)
 
 ## Limitations:
 - Since the user ID is assumed, if there are more than 1 steam accounts, it may not work (We always select the first one in alphabetical order) 
