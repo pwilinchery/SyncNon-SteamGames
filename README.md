@@ -38,7 +38,7 @@ Automatically add Non-Steam Games to Steam with images from SteamGridDB
 
 - Install the required libraries
 ```py
-pip install requests vdf Gooey 
+pip install requests vdf Gooey
 ```
 - Execute the script "SyncNon-SteamGames.py"
 
